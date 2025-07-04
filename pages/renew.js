@@ -95,4 +95,4 @@ export default function Renew() {
       <footer className="mt-10 text-gray-500 text-xs">
         Powered by Base + OTEC Project
       </footer>
-    </m
+    </main>
