@@ -19,7 +19,7 @@ const { chains, publicClient } = configureChains(
 
 const { connectors } = getDefaultWallets({
   appName: 'OTEC Licensing Dapp',
-  projectId: 'ced749b38222900677e11e8d3b875b2e', // reuse or update project ID
+  projectId: 'cf132a3a2895480d3f5e8dc047c26444', // reuse or update project ID
   chains,
 });
 
