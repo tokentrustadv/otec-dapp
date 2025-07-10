@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import LicenseNFT from "../abi/LicenseNFT.json";
+import LicenseNFT from "../ABI/LicenseNFT.json";
 
 export default function Mint() {
   const { address, isConnected } = useAccount();
@@ -12,7 +12,7 @@ export default function Mint() {
   // prepare mint transaction
   const { config } = usePrepareContractWrite({
     address: CONTRACT_ADDRESS,
-    abi: LicenseNFT.abi,
+    ABI: LicenseNFT.ABI,
     functionName: "licenseContent",
     args: [contentURI],
     enabled: Boolean(contentURI && isConnected),
