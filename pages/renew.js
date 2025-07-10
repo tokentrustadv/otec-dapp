@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react";
-import { useAccount, useContractRead, usePrepareContractWrite, useContractWrite } from "wagmi";
+import {
+  useAccount,
+  useContractRead,
+  usePrepareContractWrite,
+  useContractWrite,
+} from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import LicenseNFT from "../abi/LicenseNFT.json";
+import LicenseNFT from "../ABI/LicenseNFT.json";
 
 export default function Renew() {
   const { address, isConnected } = useAccount();
-  const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_LICENSE_NFT;
+  const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_LICENSE_NFT_ADDRESS;
 
-  // state to track user tokens
   const [tokenIds, setTokenIds] = useState([]);
   const [selectedTokenId, setSelectedTokenId] = useState("");
 
-  // function to read owned tokens
-  // note: for production you might want to index events or use TheGraph,
-  // but for MVP we will use a simple tokenOfOwnerByIndex loop
-  // you may want to expand this later
   const { data: balance } = useContractRead({
     address: CONTRACT_ADDRESS,
-    abi: LicenseNFT.abi,
+    abi: LicenseNFT,
     functionName: "balanceOf",
     args: [address],
     watch: true,
@@ -25,24 +25,21 @@ export default function Renew() {
 
   useEffect(() => {
     if (balance && Number(balance) > 0) {
-      // naive fetch of token IDs
       const tokens = [];
       for (let i = 0; i < Number(balance); i++) {
-        tokens.push(i); // index positions
+        tokens.push(i);
       }
       setTokenIds(tokens);
     }
   }, [balance]);
 
-  // prepare renew tx
   const { config } = usePrepareContractWrite({
     address: CONTRACT_ADDRESS,
-    abi: LicenseNFT.abi,
-    functionName: "renewLicense",
+    abi: LicenseNFT,
+    functionName: "renew",
     args: [selectedTokenId],
     enabled: Boolean(selectedTokenId),
   });
-
   const { write, isLoading, isSuccess } = useContractWrite(config);
 
   return (
@@ -96,3 +93,5 @@ export default function Renew() {
         Powered by Base + OTEC Project
       </footer>
     </main>
+  )
+}
