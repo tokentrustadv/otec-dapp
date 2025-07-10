@@ -1,15 +1,17 @@
 // pages/_app.js
 import '../styles/globals.css';
+import '@rainbow-me/rainbowkit/styles.css';
+
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
-import {
-  RainbowKitProvider,
-  getDefaultWallets,
-  connectorsForWallets,
-} from '@rainbow-me/rainbowkit';
-import '@rainbow-me/rainbowkit/styles.css';
 
+import {
+  getDefaultWallets,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
+
+// 1. Define Base as a custom chain
 const baseChain = {
   id: 8453,
   name: 'Base',
@@ -20,11 +22,12 @@ const baseChain = {
     public: { http: ['https://mainnet.base.org'] },
   },
   blockExplorers: {
-    default: { name: 'Base Blockscout', url: 'https://base.blockscout.com' },
+    default: { name: 'Blockscout', url: 'https://base.blockscout.com' },
   },
   testnet: false,
 };
 
+// 2. Configure chains & providers
 const { chains, provider } = configureChains(
   [baseChain],
   [
@@ -35,25 +38,20 @@ const { chains, provider } = configureChains(
   ]
 );
 
-const { wallets } = getDefaultWallets({
+// 3. Get RainbowKit’s connectors (uses wagmi under the hood)
+const { connectors } = getDefaultWallets({
   appName: 'OTEC dApp',
   chains,
 });
 
-const connectors = connectorsForWallets([
-  {
-    groupName: 'Recommended',
-    wallets,
-  },
-]);
-
+// 4. Create the Wagmi client
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
   provider,
 });
 
-function MyApp({ Component, pageProps }) {
+export default function MyApp({ Component, pageProps }) {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
@@ -62,5 +60,3 @@ function MyApp({ Component, pageProps }) {
     </WagmiConfig>
   );
 }
-
-export default MyApp;
