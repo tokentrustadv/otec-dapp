@@ -1,6 +1,6 @@
 import { useAccount, useContractRead, useNetwork } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import LicenseNFT from "../abi/LicenseNFT.json";  // make sure you add this ABI later!
+import LicenseNFT from "../ABI/LicenseNFT.json";  // make sure you add this ABI later!
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -12,7 +12,7 @@ export default function Home() {
   // check allowlist from contract
   const { data: isAllowed, refetch } = useContractRead({
     address: CONTRACT_ADDRESS,
-    abi: LicenseNFT.abi,
+    ABI: LicenseNFT.ABI,
     functionName: "allowlist",
     args: [address],
     watch: true,
