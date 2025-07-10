@@ -1,43 +1,66 @@
+// pages/_app.js
 import '../styles/globals.css';
-import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
-import { base } from 'wagmi/chains';
-import { Toaster } from 'react-hot-toast';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import {
+  RainbowKitProvider,
+  getDefaultWallets,
+  connectorsForWallets,
+} from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
 
-const { chains, publicClient } = configureChains(
-  [base],
+const baseChain = {
+  id: 8453,
+  name: 'Base',
+  network: 'base',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://mainnet.base.org'] },
+    public: { http: ['https://mainnet.base.org'] },
+  },
+  blockExplorers: {
+    default: { name: 'Base Blockscout', url: 'https://base.blockscout.com' },
+  },
+  testnet: false,
+};
+
+const { chains, provider } = configureChains(
+  [baseChain],
   [
     jsonRpcProvider({
-      rpc: () => ({ http: 'https://mainnet.base.org' }),
+      rpc: (chain) => ({ http: chain.rpcUrls.default.http[0] }),
     }),
     publicProvider(),
   ]
 );
 
-const { connectors } = getDefaultWallets({
-  appName: 'OTEC Licensing Dapp',
-  projectId: 'cf132a3a2895480d3f5e8dc047c26444', // reuse or update project ID
+const { wallets } = getDefaultWallets({
+  appName: 'OTEC dApp',
   chains,
 });
 
-const wagmiConfig = createConfig({
+const connectors = connectorsForWallets([
+  {
+    groupName: 'Recommended',
+    wallets,
+  },
+]);
+
+const wagmiClient = createClient({
   autoConnect: true,
   connectors,
-  publicClient,
+  provider,
 });
 
-export default function App({ Component, pageProps }) {
+function MyApp({ Component, pageProps }) {
   return (
-    <WagmiConfig config={wagmiConfig}>
+    <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
-        <main className="font-sans">
-          <Component {...pageProps} />
-        </main>
-        <Toaster position="top-right" />
+        <Component {...pageProps} />
       </RainbowKitProvider>
     </WagmiConfig>
   );
 }
+
+export default MyApp;
