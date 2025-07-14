@@ -1,3 +1,4 @@
+// pages/mint.js
 import { useAccount, useContractRead, usePrepareContractWrite, useContractWrite } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import LicenseNFT from "../ABI/LicenseNFT.json";
@@ -6,12 +7,13 @@ export default function Mint() {
   const { address, isConnected } = useAccount();
   const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_LICENSE_NFT_ADDRESS;
 
-  // 1) Read the allowlist mapping for this wallet
+  // 1) Read the on-chain allowlist for this wallet (only when we have an address)
   const { data: isAllowed } = useContractRead({
     address: CONTRACT_ADDRESS,
     abi: LicenseNFT,
     functionName: "allowlist",
     args: [address],
+    enabled: isConnected && Boolean(address),
     watch: true,
   });
 
@@ -31,14 +33,14 @@ export default function Mint() {
 
       {isConnected && (
         <>
-          {/* 3) Show warning if connected but not on allowlist */}
-          {!isAllowed && (
+          {/* show warning if connected but not allow-listed */}
+          {isAllowed === false && (
             <p className="text-red-600 mt-4">
               ⚠️ You are not on the allowlist. Please subscribe on Substack to join.
             </p>
           )}
 
-          {/* 4) Show mint button only when allowed */}
+          {/* show mint button only when allow-listed */}
           {isAllowed && (
             <button
               onClick={() => write?.()}
