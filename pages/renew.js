@@ -1,10 +1,6 @@
+// pages/renew.js
 import { useState, useEffect } from "react";
-import {
-  useAccount,
-  useContractRead,
-  usePrepareContractWrite,
-  useContractWrite,
-} from "wagmi";
+import { useAccount, usePrepareContractWrite, useContractWrite, useContractRead } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import LicenseNFT from "../ABI/LicenseNFT.json";
 
@@ -12,9 +8,7 @@ export default function Renew() {
   const { address, isConnected } = useAccount();
   const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_LICENSE_NFT_ADDRESS;
 
-  const [tokenIds, setTokenIds] = useState([]);
-  const [selectedTokenId, setSelectedTokenId] = useState("");
-
+  // Read how many licenses they own
   const { data: balance } = useContractRead({
     address: CONTRACT_ADDRESS,
     abi: LicenseNFT,
@@ -23,22 +17,22 @@ export default function Renew() {
     watch: true,
   });
 
+  const [tokenIds, setTokenIds] = useState([]);
+  const [selectedTokenId, setSelectedTokenId] = useState("");
+
+  // Build a list of tokenIds [0 … balance-1]
   useEffect(() => {
-    if (balance && Number(balance) > 0) {
-      const tokens = [];
-      for (let i = 0; i < Number(balance); i++) {
-        tokens.push(i);
-      }
-      setTokenIds(tokens);
-    }
+    const b = Number(balance ?? 0);
+    setTokenIds(Array.from({ length: b }, (_, i) => i));
   }, [balance]);
 
+  // Prepare renewLicense()
   const { config } = usePrepareContractWrite({
     address: CONTRACT_ADDRESS,
     abi: LicenseNFT,
-    functionName: "renew",
-    args: [selectedTokenId],
-    enabled: Boolean(selectedTokenId),
+    functionName: "renewLicense",
+    args: [Number(selectedTokenId)],
+    enabled: isConnected && selectedTokenId !== "",
   });
   const { write, isLoading, isSuccess } = useContractWrite(config);
 
@@ -49,7 +43,7 @@ export default function Renew() {
 
       {isConnected && (
         <div className="w-full max-w-md mt-6">
-          {balance && Number(balance) > 0 ? (
+          {balance > 0 ? (
             <>
               <label className="block mb-2 text-sm font-semibold">
                 Select License NFT
@@ -83,7 +77,7 @@ export default function Renew() {
             </>
           ) : (
             <p className="text-red-600 mt-4">
-              You do not own any License NFTs yet.
+              You don’t own any License NFTs yet.
             </p>
           )}
         </div>
@@ -93,5 +87,5 @@ export default function Renew() {
         Powered by Base + OTEC Project
       </footer>
     </main>
-  )
+  );
 }
