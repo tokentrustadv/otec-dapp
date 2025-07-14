@@ -61,6 +61,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "allowlist",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "mintFounder",
     "outputs": [],
@@ -339,7 +358,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "to",
+        ** "name": "to",
         "type": "address"
       },
       {
